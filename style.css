@@ -4,13 +4,15 @@
    ========================================================== */
 
 :root {
+  color-scheme: light;
+
   --bg: #faf7f2;
   --surface: #ffffff;
   --ink: #1f2328;
   --ink-soft: #4a5158;
-  --ink-faint: #767e86;
+  --ink-faint: #5f676f;   /* 5.4:1 on --bg — AA for normal text */
   --line: #e4ded4;
-  --accent: #b5651d;
+  --accent: #9d5617;      /* 5.2:1 on --bg, 5.6:1 on --surface */
   --accent-soft: #f4e7d8;
   --shadow: 0 1px 2px rgba(31, 35, 40, .06), 0 8px 24px rgba(31, 35, 40, .06);
   --radius: 14px;
@@ -85,7 +87,16 @@ a:hover { color: var(--ink); }
   border-radius: 999px;
 }
 .nav a:hover { background: var(--accent-soft); color: var(--ink); }
-.nav a.active { background: var(--ink); color: #fff; }
+.nav a[aria-current="page"] { background: var(--ink); color: #fff; }
+
+/* The sticky bar wraps to two rows on narrow screens; keep it shallow there. */
+@media (max-width: 560px) {
+  .site-header .wrap {
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+  .nav a { padding: 5px 12px; }
+}
 
 /* ---------- Hero ---------- */
 
@@ -94,10 +105,13 @@ a:hover { color: var(--ink); }
   text-align: center;
 }
 
+.hero.compact { padding-bottom: 8px; }
+
 .hero h1 {
   font-size: clamp(2.1rem, 5vw, 3.4rem);
   line-height: 1.15;
-  margin: 0 0 16px;
+  max-width: 24ch;
+  margin: 0 auto 16px;
   letter-spacing: -.02em;
 }
 
@@ -153,12 +167,16 @@ h2 {
   flex-direction: column;
   text-decoration: none;
   color: inherit;
-  transition: transform .18s ease, box-shadow .18s ease;
 }
 
 .card:hover {
-  transform: translateY(-3px);
   box-shadow: 0 2px 4px rgba(31,35,40,.08), 0 16px 36px rgba(31,35,40,.12);
+}
+
+/* Lift + animate only for readers who have not asked for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .card { transition: transform .18s ease, box-shadow .18s ease; }
+  .card:hover { transform: translateY(-3px); }
 }
 
 .card .thumb { height: 190px; }
@@ -204,14 +222,19 @@ h2 {
   min-height: 220px;
 }
 
-.photo figcaption,
-.photo .cap {
+.photo.tall { min-height: 300px; }
+
+.photo figcaption {
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: .85rem;
   color: #fff;
   padding: 14px 16px;
   width: 100%;
-  background: linear-gradient(to top, rgba(15,18,22,.72), rgba(15,18,22,0));
+  /* Solid floor under the text so a second caption line stays legible. */
+  background: linear-gradient(to top,
+    rgba(15,18,22,.82),
+    rgba(15,18,22,.66) 72%,
+    rgba(15,18,22,0));
 }
 
 .g-desert  { background: linear-gradient(160deg, #f6d9a8, #e39b52 55%, #b5651d); }
@@ -231,23 +254,22 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
 }
+.gallery.spaced { margin-top: 8px; }
 .gallery .photo { min-height: 240px; }
-.gallery .photo.tall { min-height: 320px; }
 
 /* ---------- Article layout ---------- */
 
 .trip-hero {
   min-height: 320px;
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
   margin-top: 32px;
 }
+.trip-hero.flush { margin-top: 0; }
 
 .article {
   max-width: 720px;
   margin: 0 auto;
 }
+.article.flush { margin: 0; }
 
 .article p { margin: 0 0 20px; }
 
@@ -277,8 +299,7 @@ h2 {
   padding: 18px 20px;
 }
 
-.facts dt,
-.facts .k {
+.facts dt {
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: .72rem;
   letter-spacing: .12em;
@@ -287,7 +308,10 @@ h2 {
   margin-bottom: 4px;
 }
 
-.facts .v { font-weight: 700; }
+.facts dd {
+  margin: 0;
+  font-weight: 700;
+}
 
 /* ---------- Family info list ---------- */
 
