@@ -19,6 +19,19 @@ Opening the `.html` files directly with `file://` also works. There are no tests
 and no build/CI configuration in the repo, so verification means loading the pages in a
 browser and checking the markup by eye.
 
+## Checking your work
+
+There is nothing to run but a browser, so the duplicated chrome is where mistakes hide. Two
+greps catch the common ones:
+
+```sh
+grep -c 'aria-current="page"' *.html   # must be exactly 1 per page
+grep -c 'href="malaysia.html"' *.html  # nav + footer on every page (+ card/next-prev links)
+```
+
+Also confirm no JavaScript crept in — `grep -niE '<script|javascript:| on[a-z]+=' *.html`
+should stay empty.
+
 ## Architecture
 
 Flat, deliberately duplicated static site:
@@ -28,8 +41,13 @@ Flat, deliberately duplicated static site:
 - `dubai.html`, `malaysia.html` — one trip per page, all following the same skeleton:
   `.hero.compact` → `figure.photo.trip-hero` → `dl.facts` (When / Length / Base-or-Route /
   Kid rating) → `article.article` with `<h2>` day headings, `figure.photo.tall` images,
-  `blockquote` pull-quotes → `.next-prev` links. A trip page may also drop a
-  `.gallery.spaced` grid mid-article (see `malaysia.html`), so `.gallery` is not home-only.
+  `blockquote` pull-quotes, and a closing `.next-prev` pair as the article's **last child**
+  (not a sibling of it). A trip page may also drop a `.gallery.spaced` grid mid-article
+  (see `malaysia.html`), so `.gallery` is not home-only.
+- Every block of content sits inside a `<div class="wrap">` (max-width `--wrap`, 1040px,
+  24px gutters). `index.html` opens a separate `.wrap` per band so the hero and the flush
+  `.trip-hero` figure can breathe; the trip pages open one `.wrap` around the whole `<main>`.
+  New top-level content needs a `.wrap` or it will run to the viewport edge.
 - `style.css` — the single stylesheet for every page, organised in commented bands
   (header/nav, hero, sections, cards, photo placeholders, gallery, article, family list,
   footer).
@@ -73,6 +91,15 @@ when those change here, change them there too.
   prefer another `auto-fit` grid over adding a breakpoint.
 - The favicon is an inline `data:image/svg+xml` camera in each page's `<head>`, sharing the
   `#9d5617` accent — it is duplicated per page like the header.
+- **Light theme only.** `:root` declares `color-scheme: light` and there is no
+  `prefers-color-scheme` block anywhere; the only media queries are `max-width: 560px` and
+  `prefers-reduced-motion`. Don't introduce a dark mode unasked.
+- **One `<h1>` per page**, inside the hero. `<h2>` is section titles on the home page and day
+  headings inside a trip article; `<h3>` appears only in `.card-body`. Don't skip a level.
+- **Prose voice and typography.** First-person plural family narration, British/European
+  spelling (colour, favourite, jumper), metric units (`38°C`), curly quotes and apostrophes
+  (`“…”`, `’`), en dashes in ranges (`Day 1–2`, `Days 8–12`) and `·` as the separator in
+  `.eyebrow`, `.meta` and footer lines. `&` is written `&amp;` in `<title>` and `og:` values.
 
 ## Adding a trip page
 
